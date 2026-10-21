@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+auth.log
+etiquetas.csv
+modelo.joblib
+.env
