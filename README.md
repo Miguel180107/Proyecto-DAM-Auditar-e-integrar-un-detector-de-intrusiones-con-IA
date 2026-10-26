@@ -1,23 +1,41 @@
-# Kit del Proyecto DAM — Auditar e integrar un detector de intrusiones
 
-Contenido:
+## API REST
 
-- `generar_logs.py` — genera tu log (`auth.log`) y sus etiquetas (`etiquetas.csv`). No lo modifiques.
-- `logtools.py` — lee el log y construye las características por IP. Está hecho: léelo y entiéndelo.
-- `entrenar.py` — entrena el modelo y lo guarda en `modelo.joblib`.
-- `analisis.ipynb` — cuaderno guiado con preguntas (❓) y experimentos (🧪).
-- `requirements.txt` — librerías necesarias.
+La API REST permite integrar el detector de intrusiones con otras aplicaciones
+mediante FastAPI.
 
-## Puesta en marcha
+### Funcionalidad
 
-```bash
-python -m venv .venv
-# Windows:  .venv\Scripts\activate        Linux/macOS:  source .venv/bin/activate
-pip install -r requirements.txt
+- Carga el modelo modelo.joblib una sola vez al iniciar el servicio.
+- Dispone del endpoint GET /salud para comprobar el estado de la API.
+- Informa de si el modelo se ha cargado correctamente.
 
-python generar_logs.py --seed <TU_NUMERO_DE_LISTA> --salida auth.log --etiquetas etiquetas.csv
-python entrenar.py --log auth.log --etiquetas etiquetas.csv --salida modelo.joblib
-jupyter notebook analisis.ipynb
-```
+### Instalación
 
-La fase de integración (API + interfaz) la programas tú; los apuntes y el enunciado explican qué debe hacer.
+Instalar las dependencias necesarias:
+
+    pip install -r requirements.txt
+
+### Preparar el modelo
+
+Generar los logs y entrenar el modelo siguiendo las instrucciones
+anteriores de este README.
+
+El archivo modelo.joblib debe estar en la misma carpeta que api.py.
+
+### Ejecutar la API
+
+    uvicorn api:app --reload
+
+### Endpoint de salud
+
+Método: GET
+
+Ruta: /salud
+
+Respuesta esperada:
+
+    {
+        "estado": "ok",
+        "modelo_cargado": true
+    }
