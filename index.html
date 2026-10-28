@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Detector de intrusiones</title>
+</head>
+<body>
+<h1>Detector de intrusiones</h1>
+
+<p>
+  API: <input type="text" id="urlApi" value="http://localhost:8000">
+  <button id="btnSalud">Comprobar servicio</button>
+  <span id="estado"></span>
+</p>
+
+<h2>Log</h2>
+<p>Carga un fichero: <input type="file" id="fichero"></p>
+<p>o pega las líneas aquí:</p>
+<textarea id="log" rows="10" cols="100"></textarea>
+
+<h2>Opciones</h2>
+<p>Umbral (0 a 1): <input type="number" id="umbral" value="0.7" min="0" max="1" step="0.05"></p>
+<p>Lista blanca (IPs separadas por comas o saltos de línea):</p>
+<textarea id="listaBlanca" rows="3" cols="40"></textarea>
+
+<p><button id="btnAnalizar">Analizar</button></p>
+
+<p id="error" style="color: red"></p>
+
+<div id="resultado"></div>
+
+<script>
+function $(id) {
+  return document.getElementById(id);
+}
+
+// Carga un fichero y lo pone en el cuadro de texto
+$("fichero").addEventListener("change", function () {
+  var lector = new FileReader();
+  lector.onload = function () {
+    $("log").value = lector.result;
+  };
+  lector.readAsText($("fichero").files[0]);
+});
+
+// GET /salud
+$("btnSalud").addEventListener("click", async function () {
+  try {
+    var resp = await fetch($("urlApi").value + "/salud");
+    var datos = await resp.json();
+    $("estado").textContent = "Servicio: " + datos.estado;
+  } catch (e) {
+    $("estado").textContent = "No se puede conectar con la API";
+  }
+});
+
+// Convierte el error de la API en un texto
+function textoError(datos) {
+  // FastAPI devuelve {detail: "texto"} o {detail: [{loc, msg}, ...]}
+  if (!datos || !datos.detail) return "";
+  if (typeof datos.detail === "string") return datos.detail;
+  return datos.detail.map(function (d) {
+    return d.loc.join(".") + ": " + d.msg;
+  }).join(" | ");
+}
+
+// POST /analizar
+$("btnAnalizar").addEventListener("click", async function () {
+  $("error").textContent = "";
+  $("resultado").textContent = "";
+
+  var lineas = $("log").value.split("\n").filter(function (l) {
+    return l.trim() !== "";
+  });
+  var listaBlanca = $("listaBlanca").value.split(/[\s,]+/).filter(function (ip) {
+    return ip !== "";
+  });
+
+  var cuerpo = {
+    lineas: lineas,
+    umbral: parseFloat($("umbral").value),
+    lista_blanca: listaBlanca
+  };
+
+  var resp;
+  try {
+    resp = await fetch($("urlApi").value + "/analizar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cuerpo)
+    });
+  } catch (e) {
+    $("error").textContent = "No se puede conectar con la API (¿está arrancada? ¿tiene CORS?)";
+    return;
+  }
+
+  var datos = await resp.json();
+
+  if (!resp.ok) {
+    $("error").textContent = "Error " + resp.status + ": " + textoError(datos);
+    return;
+  }
+
+  mostrar(datos);
+});
+
+function mostrar(datos) {
+  var div = $("resultado");
+
+  var resumen = document.createElement("p");
+  resumen.textContent = "IPs analizadas: " + datos.ips_analizadas +
+    " | Líneas ignoradas: " + datos.lineas_ignoradas +
+    " | Sospechosas: " + datos.sospechosas.length;
+  div.appendChild(resumen);
+
+  if (datos.sospechosas.length === 0) {
+    var nada = document.createElement("p");
+    nada.textContent = "Ninguna IP supera el umbral.";
+    div.appendChild(nada);
+    return;
+  }
+
+  var tabla = document.createElement("table");
+  tabla.border = "1";
+  tabla.innerHTML = "<tr><th>IP</th><th>Probabilidad</th><th>Motivo</th></tr>";
+
+  datos.sospechosas.forEach(function (s) {
+    var fila = tabla.insertRow();
+    fila.insertCell().textContent = s.ip;
+    fila.insertCell().textContent = Math.round(s.probabilidad * 100) + " %";
+    fila.insertCell().textContent = s.motivo;
+  });
+
+  div.appendChild(tabla);
+}
+</script>
+</body>
+</html>
