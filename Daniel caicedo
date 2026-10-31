@@ -1,0 +1,60 @@
+
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,98 @@
+Fase 2 - Experimentos E1-E4
+E1. Variación del umbral de decisión
+Hipótesis
+Antes de realizar la prueba, se espera que al aumentar el umbral de decisión el detector sea más estricto a la hora de marcar una IP como sospechosa. Esto podría reducir los falsos positivos, aunque también podría provocar que algunos ataques reales pasen desapercibidos.
+Procedimiento
+Se evaluó el modelo utilizando distintos valores de umbral: 0.3, 0.5, 0.7 y 0.9, manteniendo el resto de parámetros sin cambios.
+Resultados
+Umbral | Precisión | Recall | F1
+0.3 | Pendiente | Pendiente | Pendiente
+0.5 | Pendiente | Pendiente | Pendiente
+0.7 | Pendiente | Pendiente | Pendiente
+0.9 | Pendiente | Pendiente | Pendiente
+Análisis
+Pendiente de completar una vez obtenidas las métricas correspondientes.
+--------------------------------------------------
+E2. Importancia de las características
+Hipótesis
+Se espera que algunas características sean más importantes que otras para la detección de intrusiones. La eliminación de una característica relevante debería provocar una disminución apreciable en las métricas del modelo.
+Procedimiento
+Se eliminaron distintas características de forma individual y se volvió a evaluar el modelo para medir el impacto de cada una de ellas.
+Resultados
+Característica eliminada | Precisión | Recall | F1
+Característica 1 | Pendiente | Pendiente | Pendiente
+Característica 2 | Pendiente | Pendiente | Pendiente
+Característica 3 | Pendiente | Pendiente | Pendiente
+Análisis
+Pendiente de completar una vez obtenidos los resultados.
+--------------------------------------------------
+E3. Comparación con una regla simple
+Hipótesis
+Se espera que el modelo de Machine Learning obtenga mejores resultados que una regla sencilla basada únicamente en una condición fija.
+Procedimiento
+Se comparó el rendimiento del modelo con una regla simple basada en una única variable relacionada con la actividad de una IP.
+Regla utilizada
+if intentos_fallidos > X:
+    atacante
+else:
+    normal
+Resultados
+Método | Precisión | Recall | F1
+Regla simple | Pendiente | Pendiente | Pendiente
+Modelo IA | Pendiente | Pendiente | Pendiente
+Análisis
+Pendiente de completar una vez obtenidos los resultados.
+--------------------------------------------------
+E4. Influencia del reparto entrenamiento/prueba
+Hipótesis
+Si el modelo es estable, pequeñas variaciones en la división de los datos entre entrenamiento y prueba no deberían provocar cambios importantes en sus métricas.
+Procedimiento
+Se realizaron varias ejecuciones utilizando diferentes repartos de los datos para estudiar la estabilidad del modelo.
+Resultados
+Configuración | Precisión | Recall | F1
+Configuración 1 | Pendiente | Pendiente | Pendiente
+Configuración 2 | Pendiente | Pendiente | Pendiente
+Configuración 3 | Pendiente | Pendiente | Pendiente
+Análisis
+Pendiente de completar una vez obtenidos los resultados.
